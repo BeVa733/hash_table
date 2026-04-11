@@ -1,21 +1,33 @@
 CXX := g++
 
-MAIN := main.cpp
-RESEARCH := hash_research
+CXXFLAGS := -Wall -Wextra -Wshadow -O3 -g \
+            -I./include \
+            -I./soa_list/include \
+            -DLIST_TYPE='const char*' \
+            -DPRINT_SPEC='"s"'
 
-SRC := $(MAIN) hash_table.cpp hash_funcs.cpp onegin.cpp spisok.cpp dump.cpp
+TARGET := hash_research
 
-COMMON_FLAGS := -Wall -Wextra -Wshadow -O3 -DNDEBUG 
+SRC := src/research_main.cpp \
+       src/hash_table.cpp \
+       src/hash_funcs.cpp \
+       read_modul/onegin.cpp \
+       soa_list/src/spisok.cpp \
+       soa_list/src/dump.cpp
 
-all: $(RESEARCH)
+OBJ := $(SRC:.cpp=.o)
 
-$(RESEARCH): $(SRC)
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(RESEARCH)
+all: $(TARGET)
 
-plot:
-	python3 plot_hist.py
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET).out
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(RESEARCH) *.o *.csv *.png *.html test1.txt 
+	rm -f $(OBJ) *.csv *.png *.html *.out
 
-.PHONY: all debug release plot clean
+remake: clean all
+
+.PHONY: all clean remake

@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
 #include "hash_table.h"
 #include "spisok.h"
 
@@ -22,7 +27,8 @@ void table_dtor(table_t* table)
 {
     for (int i = 0; i < table->size; i++)
     {
-        list_dtor(table->list_arr[0]);
+        list_dtor(table->list_arr[i]);
+        free(table->list_arr[i]);
     }
     
     free(table->list_arr);
@@ -40,7 +46,7 @@ void load_table(table_t* table, const char* filename)
         int index = hash % table->size;
         if (table->list_arr[index]->free == 1)
             insert_after(table->list_arr[index], 0, data[i]);
-        else if (!is_in_list(table->list_arr[index], data[0]))
+        else if (!is_in_list(table->list_arr[index], data[i]))
             insert_after(table->list_arr[index], 0, data[i]);
     }
 
@@ -57,8 +63,49 @@ bool is_in_list(spisok_t* list, const char* word)
         if (strcmp(list->data[curr_index], word) == 0)
             return true; 
 
-            curr_index = list->next[curr_index];
+        curr_index = list->next[curr_index];
     }
 
     return false;
+}
+
+int bucket_size(const spisok_t* list)
+{
+    assert(list);
+
+    int count = 0;
+
+    for (int curr_index = list->next[0]; curr_index != 0; curr_index = list->next[curr_index])
+        count++;
+
+    return count;
+}
+
+int table_elem_count(const table_t* table)
+{
+    assert(table);
+
+    int count = 0;
+
+    for (int i = 0; i < table->size; i++)
+        count += bucket_size(table->list_arr[i]);
+
+    return count;
+}
+
+void dump_table_hist(const table_t* table, const char* filename)
+{
+    assert(table);
+    assert(filename);
+
+    FILE* file = fopen(filename, "w");
+    if (file == NULL)
+        return;
+
+    fprintf(file, "bucket,size\n");
+
+    for (int i = 0; i < table->size; i++)
+        fprintf(file, "%d,%d\n", i, bucket_size(table->list_arr[i]));
+
+    fclose(file);
 }

@@ -7,7 +7,7 @@
 
 #include "hash_table.h"
 
-static char** make_ptr_massive(char* buffer, int num_lines, size_t read_size)
+static char** make_ptr_massive(char* buffer, long num_lines, size_t read_size)
 {
     assert(buffer != NULL);
 
@@ -67,7 +67,7 @@ static int check_n_lines(char* buffer)
     return n_lines;
 }
 
-char** read_text(const char* filename, int* num_lines)
+char** read_text(const char* filename, long* num_lines)
 {
     FILE* file = fopen(filename, "r");
     if (!file)

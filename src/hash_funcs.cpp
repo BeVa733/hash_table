@@ -1,30 +1,38 @@
+#include <string.h>
+
 #include "hash_table.h"
 
 uint32_t one_hash(const char* word)
 {
+    (void)word;
     return 1;
 }
 
 uint32_t first_ascii_hash(const char* word)
 {
-    return word[0];
+    if (word == NULL || word[0] == '\0')
+        return 0;
+
+    return (unsigned char)word[0];
 }
 
 uint32_t lenth_hash(const char* word)
 {
-    return strlen(word);
+    if (word == NULL)
+        return 0;
+
+    return (uint32_t)strlen(word);
 }
 
 uint32_t ascii_sum_hash(const char* word)
 {
-    uint32_t sum = 0;
-    int index = 0;
+    if (word == NULL)
+        return 0;
 
-    while(word[index] != '\0')
-    {
-        sum += word[index];
-        index++;
-    }
+    uint32_t sum = 0;
+
+    for (int i = 0; word[i] != '\0'; i++)
+        sum += (unsigned char)word[i];
 
     return sum;
 }
@@ -35,10 +43,11 @@ uint32_t hash_rol_xor(const char* word)
         return 0;
 
     uint32_t hash = word[0];
-    for (size_t i = 1; word[i] != 0; i++) 
+
+    for (int i = 1; word[i] != '\0'; i++) 
     {
-        hash = ((hash << 1) | (hash >> 61));
-        hash ^= word[i];
+        hash = (hash << 1) | (hash >> 31);
+        hash ^= (unsigned char)word[i];
     }
 
     return hash;
@@ -63,9 +72,9 @@ uint32_t crc32c_hash(const char* word)
 
     while (*word) 
     {
-        crc ^= *word;
+        crc ^= (unsigned char)(*word);
 
-        for (int j = 0; j < 8; ++j) 
+        for (int j = 0; j < 8; j++)
         {
             if (crc & 1)
                 crc = (crc >> 1) ^ 0x82F63B78;

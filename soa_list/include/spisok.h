@@ -1,6 +1,8 @@
 #ifndef SPISOK_H
 #define SPISOK_H
 
+#include <stdio.h>
+
 const int POIZON  = -1;
 const int SUCCESS =  0;
 
