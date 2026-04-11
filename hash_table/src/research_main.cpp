@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 {
     if (argc < 2)
     {
-        printf("Usage: %s normalized.txt [table_size]\n", argv[0]);
+        printf("Usage: %s <normalized.txt> [table_size]\n", argv[0]);
         return 1;
     }
 
@@ -36,14 +36,18 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < n_hashes; i++)
     {
+        printf("table creation\n");
         table_t table = {};
         if (table_ctor(&table, table_size, hashes[i].func) != 0)
         {
             printf("Ctor failed for %s\n", hashes[i].name);
             continue;
         }
+        printf("load table\n");
 
         load_table(&table, argv[1]);
+        
+        printf("end loading\n");
 
         char csv_name[128] = "";
         snprintf(csv_name, sizeof(csv_name), "%s.csv", hashes[i].name);

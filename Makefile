@@ -1,32 +1,38 @@
 CXX := g++
 
+OBJ_DIR := obj
+
 CXXFLAGS := -Wall -Wextra -Wshadow -O3 -g \
-            -I./include \
+            -I./hash_table/include \
             -I./soa_list/include \
+			-DFINAL_VER \
             -DLIST_TYPE='const char*' \
             -DPRINT_SPEC='"s"'
 
 TARGET := hash_research
 
-SRC := src/research_main.cpp \
-       src/hash_table.cpp \
-       src/hash_funcs.cpp \
+SRC := hash_table/src/research_main.cpp \
+       hash_table/src/hash_table.cpp \
+       hash_table/src/hash_funcs.cpp \
        read_modul/onegin.cpp \
        soa_list/src/spisok.cpp \
        soa_list/src/dump.cpp
 
-OBJ := $(SRC:.cpp=.o)
+OBJ := $(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.cpp=.o)))
+
+VPATH := hash_table/src:read_modul:soa_list/src
 
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET).out
 
-%.o: %.cpp
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) *.csv *.png *.html *.out
+	rm -rf $(OBJ_DIR) *.csv  *.html *.out
 
 remake: clean all
 

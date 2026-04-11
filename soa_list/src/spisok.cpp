@@ -258,12 +258,8 @@ int list_realloc_down_hard(spisok_t* list)
 
     ON_NOT_FINAL(LIST_VERIFY_BEFORE)
 
-    #define FINAL_VER
-
     list_sort(list);
     list_realloc_down_soft(list);
-
-    #undef FINAL_VER
 
     ON_NOT_FINAL(LIST_VERIFY_AFTER)
 

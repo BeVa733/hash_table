@@ -1,2 +1,5 @@
 *.o
 *.out
+*.txt
+*.csv
+*.png
