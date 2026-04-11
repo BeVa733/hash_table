@@ -36,21 +36,17 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < n_hashes; i++)
     {
-        printf("table creation\n");
         table_t table = {};
         if (table_ctor(&table, table_size, hashes[i].func) != 0)
         {
             printf("Ctor failed for %s\n", hashes[i].name);
             continue;
         }
-        printf("load table\n");
-
+        
         load_table(&table, argv[1]);
         
-        printf("end loading\n");
-
         char csv_name[128] = "";
-        snprintf(csv_name, sizeof(csv_name), "%s.csv", hashes[i].name);
+        snprintf(csv_name, sizeof(csv_name), "results/tables/%s.csv", hashes[i].name);
 
         dump_table_hist(&table, csv_name);
 
