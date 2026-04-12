@@ -6,6 +6,7 @@ CXXFLAGS := -Wall -Wextra -Wshadow -O3 -g \
             -I./hash_table/include \
             -I./soa_list/include \
 			-DFINAL_VER \
+            -DNDEBUG \
             -DLIST_TYPE='const char*' \
             -DPRINT_SPEC='"s"'
 
@@ -16,7 +17,7 @@ SRC := hash_table/src/research_main.cpp \
        hash_table/src/hash_funcs.cpp \
        read_modul/onegin.cpp \
        soa_list/src/spisok.cpp \
-       soa_list/src/dump.cpp
+       soa_list/src/dump.cpp    
 
 OBJ := $(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.cpp=.o)))
 
