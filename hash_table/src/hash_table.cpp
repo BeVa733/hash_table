@@ -11,7 +11,7 @@
 int table_ctor(table_t* table, int size, hash_function func)
 {
     int err_code = 0;
-    int list_size = 10;
+    int list_size = 2;
 
     table->size     = size;
     table->list_arr = (spisok_t**)calloc(size, sizeof(spisok_t*));
@@ -111,7 +111,7 @@ bool is_in_table(const table_t* table, const char* word)
     return is_in_list(table->list_arr[index], word);
 }
 
-char* find_in_table(const table_t* table, const char* word)
+const char* find_in_table(const table_t* table, const char* word)
 {
     assert(table);
     assert(word); 
@@ -121,7 +121,7 @@ char* find_in_table(const table_t* table, const char* word)
     int find_index = 0;
 
     if (is_in_list(table->list_arr[index], word, &find_index))
-        return table->list_arr[index]->data[find_index];
+        return (table->list_arr[index])->data[find_index];
 
     return NULL;
 }

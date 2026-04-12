@@ -14,14 +14,14 @@ struct table_t
 };
 
 // table API
-int    table_ctor     (table_t* table, int size, hash_function func);
-void   table_dtor     (table_t* table);
-bool   is_in_list     (spisok_t* list, const char* word, int* find_index);
-char** load_table     (table_t* table, const char* filename);
-bool insert_in_table  (table_t* table, const char* word);
-bool is_in_table      (const table_t* table, const char* word);
-char* find_in_table   (const table_t* table, const char* word);
-bool erase_from_table (table_t* table, const char* word);
+int         table_ctor       (table_t* table, int size, hash_function func);
+void        table_dtor       (table_t* table);
+bool        is_in_list       (spisok_t* list, const char* word, int* find_index);
+char**      load_table       (table_t* table, const char* filename);
+bool        insert_in_table  (table_t* table, const char* word);
+bool        is_in_table      (const table_t* table, const char* word);
+const char* find_in_table    (const table_t* table, const char* word);
+bool        erase_from_table (table_t* table, const char* word);
 
 // utils
 char** read_text  (const char* filename, long* num_lines);

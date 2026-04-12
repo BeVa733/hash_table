@@ -7,28 +7,62 @@
 
 #include "hash_table.h"
 
-static char** make_ptr_massive(char* buffer, long num_lines, size_t read_size)
+static inline bool is_sep(char symbol)
+{
+    return symbol == ' ' || symbol == '\n' || symbol == '\t';
+}
+
+static char** make_ptr_massive(char* buffer, long* num_lines, size_t read_size)
 {
     assert(buffer != NULL);
+    assert(num_lines != NULL);
 
-    char** lines = (char**)calloc(num_lines, sizeof(char*));
+    long capacity = read_size >> 3;
+    char** lines = (char**)calloc(capacity, sizeof(char*));
     if (!lines)
     {
         free(buffer);
         return NULL;
     }
 
-    int line_index = 0;
-    char* start_str = buffer;
+    long line_index = 0;
+    bool inside_word = false;
 
     for (size_t i = 0; i < read_size; i++)
     {
-        if (buffer[i] == ' ' || buffer[i] == '\n')
+        if (is_sep(buffer[i]))
         {
             buffer[i] = '\0';
-            lines[line_index++] = start_str;
-            start_str = &buffer[i+1];
+            inside_word = false;
         }
+        else if (!inside_word)
+        {
+            if (line_index >= capacity)
+            {
+                capacity *= 2;
+                char** new_lines = (char**)realloc(lines, capacity * sizeof(char*));
+                if (!new_lines)
+                {
+                    free(lines);
+                    free(buffer);
+                    return NULL;
+                }
+
+                lines = new_lines;
+            }
+
+            lines[line_index++] = &buffer[i];
+            inside_word = true;
+        }
+    }
+
+    *num_lines = line_index;
+
+    if (*num_lines == 0)
+    {
+        free(lines);
+        free(buffer);
+        return NULL;
     }
 
     return lines;
@@ -47,28 +81,11 @@ static long int check_file_size(FILE* file)
     return file_info.st_size;
 }
 
-static int check_n_lines(char* buffer)
-{
-
-    int n_lines = 1;
-    char* buf_ptr = strchr(buffer, ' ');
-
-    char* new_space = 0;
-    char* new_line  = 0;
-
-    while (buf_ptr != NULL)
-    {
-        n_lines  += 1;
-        new_space = strchr(buf_ptr + 1, ' ');
-        new_line  = strchr(buf_ptr + 1, '\n');
-        buf_ptr   = new_line < new_space ? new_line : new_space;
-    }
-
-    return n_lines;
-}
-
 char** read_text(const char* filename, long* num_lines)
 {
+    assert(filename != NULL); 
+    assert(num_lines != NULL); 
+
     FILE* file = fopen(filename, "r");
     if (!file)
     {
@@ -77,6 +94,11 @@ char** read_text(const char* filename, long* num_lines)
     }
 
     long int file_size = check_file_size(file);
+    if (file_size < 0)
+    {
+        fclose(file);
+        return NULL;
+    }
 
     char* buffer = (char*)calloc(file_size + 1, sizeof(char));
     if (!buffer)
@@ -91,8 +113,5 @@ char** read_text(const char* filename, long* num_lines)
 
     buffer[read_size] = '\0';
 
-    *num_lines = check_n_lines(buffer);
-
-    return make_ptr_massive(buffer, *num_lines, read_size);
-
+    return make_ptr_massive(buffer, num_lines, read_size);
 }

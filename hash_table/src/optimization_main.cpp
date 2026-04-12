@@ -15,15 +15,20 @@ static void free_text_data(char** data)
 
 int main(int argc, char* argv[])
 {
-    if (argc < 4)
+    if (argc < 3)
     {
-        printf("Usage: %s <table_text.txt> <test_text.txt> <table_size>\n", argv[0]);
+        printf("Usage: %s <table_text.txt> <query_text.txt> [table_size]\n", argv[0]);
         return 1;
     }
+    int table_size = 0;
+
+    if(!argv[3])
+        table_size = 11717;
+    else
+        table_size = atoi(argv[3]);
 
     const char* table_filename = argv[1];
-    const char* test_filename = argv[2];
-    int table_size = atoi(argv[3]);
+    const char* query_filename = argv[2];
 
     if (table_size <= 0)
         return 1;
@@ -34,18 +39,17 @@ int main(int argc, char* argv[])
         return 1;
 
     char** table_data = load_table(&table, table_filename);
-    if (!table_data)
+
+    if (table_data == NULL)
     {
         table_dtor(&table);
         return 1;
     }
 
-    printf("Table loaded\n");
+    long n_query_words = 0;
+    char** query_data = read_text(query_filename, &n_query_words);
 
-    long n_test_words = 0;
-    char** test_data = read_text(test_filename, &n_test_words);
-
-    if (test_data == NULL)
+    if (query_data == NULL)
     {
         table_dtor(&table);
         free_text_data(table_data);
@@ -55,9 +59,12 @@ int main(int argc, char* argv[])
     volatile unsigned long long found_count = 0;
     volatile unsigned long long miss_count  = 0;
 
-    for (int i = 0; i < n_test_words; i++)
+    for (int i = 0; i < n_query_words; i++)
     {
-        if (find_in_table(&table, test_data[i]) != NULL)
+        if (query_data[i] == NULL || query_data[i][0] == '\0')
+            continue;
+
+        if (find_in_table(&table, query_data[i]) != NULL)
             found_count++;
         else
             miss_count++;
@@ -65,9 +72,7 @@ int main(int argc, char* argv[])
 
     table_dtor(&table);
     free_text_data(table_data);
-    free_text_data(test_data);
+    free_text_data(query_data);
 
-    printf("Done\n");
-
-    return 0;
+    return (int)((found_count + miss_count) & 0xFF);
 }
