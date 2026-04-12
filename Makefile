@@ -4,6 +4,7 @@ OBJ_DIR := obj
 CXXFLAGS := -Wall -Wextra -Wshadow -O3 -g \
             -I./hash_table/include \
             -I./soa_list/include \
+            -march=native \
 			-DFINAL_VER \
             -DNDEBUG \
             -DLIST_TYPE='const char*' \

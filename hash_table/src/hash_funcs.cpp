@@ -1,6 +1,23 @@
 #include <string.h>
+#include <nmmintrin.h> 
 
 #include "hash_table.h"
+
+uint32_t crc32c_hash(const char* word)
+{
+    if (word == NULL)
+        return 0;
+
+    uint32_t crc = 0xFFFFFFFF;
+
+    while (*word)
+    {
+        crc = _mm_crc32_u8(crc, (unsigned char)(*word));
+        word++;
+    }
+
+    return crc ^ 0xFFFFFFFF;
+}
 
 uint32_t one_hash(const char* word)
 {
@@ -61,29 +78,4 @@ uint32_t gnu_hash(const char* word)
         hash = (hash << 5) + hash + *word;
 
     return hash;
-}
-
-uint32_t crc32c_hash(const char* word)
-{
-    if (word == NULL)
-        return 0;
-
-    uint32_t crc = 0xFFFFFFFF;
-
-    while (*word) 
-    {
-        crc ^= (unsigned char)(*word);
-
-        for (int j = 0; j < 8; j++)
-        {
-            if (crc & 1)
-                crc = (crc >> 1) ^ 0x82F63B78;
-            else
-                crc >>= 1;
-        }
-
-        word++;
-    }
-
-    return crc ^ 0xFFFFFFFF;
 }
