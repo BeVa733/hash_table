@@ -1,5 +1,8 @@
 CXX := g++
+ASM := nasm
 OBJ_DIR := obj
+
+ASMFLAGS := -f elf64 -g -F dwarf
 
 CXXFLAGS := -Wall -Wextra -Wshadow -O3 -g \
             -I./hash_table/include \
@@ -16,7 +19,9 @@ COMMON_SRC := src/hash_table.cpp \
               soa_list/src/spisok.cpp \
               soa_list/src/dump.cpp
 
-COMMON_OBJ := $(addprefix $(OBJ_DIR)/, $(notdir $(COMMON_SRC:.cpp=.o)))
+ASM_SRC   := src/find_in_table.asm
+
+COMMON_OBJ := $(addprefix $(OBJ_DIR)/, $(notdir $(COMMON_SRC:.cpp=.o))) $(addprefix $(OBJ_DIR)/, $(notdir $(ASM_SRC:.asm=.o)))
 
 TARGET1 := hash_research
 MAIN1   := src/research_main.cpp
@@ -39,6 +44,9 @@ $(TARGET2): $(COMMON_OBJ) $(OBJ2)
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: %.asm
+	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR) *.out

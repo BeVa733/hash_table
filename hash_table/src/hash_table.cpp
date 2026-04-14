@@ -5,29 +5,32 @@
 
 #include "hash_table.h"
 
-
 // --------------------- Table API ----------------------------
 
-int table_ctor(table_t* table, int size, hash_function func)
+int table_ctor(table_t* table, uint32_t size, hash_function func)
 {
     int err_code = 0;
     int list_size = 2;
 
-    table->size     = size;
+    table->size     = (uint64_t)size;
+
     table->list_arr = (spisok_t**)calloc(size, sizeof(spisok_t*));
-    for (int i = 0; i < size; i++)
+    for (uint32_t i = 0; i < size; i++)
     {
         table->list_arr[i] = (spisok_t*)calloc(1, sizeof(spisok_t));
         err_code += list_ctor(table->list_arr[i], list_size);
     }
+
     table->func = func;
-    
+
+    table->magic_const = (UINT64_MAX / (uint32_t)size) + 1;
+
     return err_code;
 }
 
 void table_dtor(table_t* table)
 {
-    for (int i = 0; i < table->size; i++)
+    for (uint64_t i = 0; i < table->size; i++)
     {
         list_dtor(table->list_arr[i]);
         free(table->list_arr[i]);
@@ -43,12 +46,16 @@ bool is_in_list(spisok_t* list, const char* word, int* find_index = NULL)
 
     while (curr_index != 0)
     {
-        if (strcmp(list->data[curr_index], word) == 0)
+        if (*(list->data[curr_index]) == *word)
         {
-            if (find_index)
-                *find_index = curr_index;
 
-            return true; 
+            if (strcmp(list->data[curr_index], word) == 0)
+            {
+                if (find_index)
+                    *find_index = curr_index;
+
+                return true; 
+            }
         }
 
         curr_index = list->next[curr_index];
@@ -111,20 +118,38 @@ bool is_in_table(const table_t* table, const char* word)
     return is_in_list(table->list_arr[index], word);
 }
 
-const char* find_in_table(const table_t* table, const char* word)
-{
-    assert(table);
-    assert(word); 
+// const char* find_in_table(const table_t* table, const char* word)
+// {
+//     assert(table);
+//     assert(word);
 
-    int index = get_table_index(table, word);
-    
-    int find_index = 0;
+//     uint32_t hash = table->func(word);
 
-    if (is_in_list(table->list_arr[index], word, &find_index))
-        return (table->list_arr[index])->data[find_index];
+//     uint32_t index = 0;
+//     uint64_t magic_const = table->magic_const;
+//     uint32_t size = table->size;
 
-    return NULL;
-}
+//     asm volatile (
+//     ".intel_syntax noprefix  \n\t"
+
+//     "mul %[sz]               \n\t" 
+//     "mul %[mc]               \n\t" 
+
+//     ".att_syntax prefix      \n\t"
+//     : [index] "=d" (index)         
+//     : [mc]    "r"  (magic_const),  
+//       [hash]  "a"  (hash),          
+//       [sz]    "r"  (size)          
+//     : "cc"                  
+//     );
+
+//     int find_index = 0;
+
+//     if (is_in_list(table->list_arr[index], word, &find_index))
+//         return table->list_arr[index]->data[find_index];
+
+//     return NULL;
+// }
 
 bool erase_from_table(table_t* table, const char* word)
 {
@@ -167,7 +192,7 @@ int empty_bucket_count(const table_t* table)
 
     int count = 0;
 
-    for (int i = 0; i < table->size; i++)
+    for (uint64_t i = 0; i < table->size; i++)
     {
         if (bucket_size(table->list_arr[i]) == 0)
             count++;
@@ -182,7 +207,7 @@ int max_bucket_size(const table_t* table)
 
     int max_size = 0;
 
-    for (int i = 0; i < table->size; i++)
+    for (uint64_t i = 0; i < table->size; i++)
     {
         int curr_size = bucket_size(table->list_arr[i]);
 
@@ -218,7 +243,7 @@ int table_elem_count(const table_t* table)
 
     int count = 0;
 
-    for (int i = 0; i < table->size; i++)
+    for (uint64_t i = 0; i < table->size; i++)
         count += bucket_size(table->list_arr[i]);
 
     return count;
@@ -235,8 +260,8 @@ void dump_table_hist(const table_t* table, const char* filename)
 
     fprintf(file, "bucket,size\n");
 
-    for (int i = 0; i < table->size; i++)
-        fprintf(file, "%d,%d\n", i, bucket_size(table->list_arr[i]));
+    for (uint64_t i = 0; i < table->size; i++)
+        fprintf(file, "%ld,%d\n", i, bucket_size(table->list_arr[i]));
 
     fclose(file);
 }

@@ -8,19 +8,22 @@ typedef uint32_t (*hash_function)(const char* word);
 
 struct table_t
 {
-    int size;
+    uint32_t size;
     spisok_t** list_arr;
     hash_function func;
+    uint64_t magic_const;
 };
 
+extern "C" const char* find_in_table(const table_t* table, const char* word);
+
 // table API
-int         table_ctor       (table_t* table, int size, hash_function func);
+int         table_ctor       (table_t* table, uint32_t size, hash_function func);
 void        table_dtor       (table_t* table);
 bool        is_in_list       (spisok_t* list, const char* word, int* find_index);
 char**      load_table       (table_t* table, const char* filename);
 bool        insert_in_table  (table_t* table, const char* word);
 bool        is_in_table      (const table_t* table, const char* word);
-const char* find_in_table    (const table_t* table, const char* word);
+// const char* find_in_table    (const table_t* table, const char* word);
 bool        erase_from_table (table_t* table, const char* word);
 
 // utils

@@ -74,5 +74,5 @@ int main(int argc, char* argv[])
     free_text_data(table_data);
     free_text_data(query_data);
 
-    return (int)((found_count + miss_count) & 0xFF);
+    return 0;
 }
