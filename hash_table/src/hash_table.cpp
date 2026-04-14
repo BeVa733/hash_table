@@ -76,12 +76,7 @@ char** load_table(table_t* table, const char* filename)
         return NULL;
     
     for (int i = 0; i < n_words; i++)
-    {
-        if (data[i] == NULL || data[i][0] == '\0') 
-            continue;
-
         insert_in_table(table, data[i]);
-    }
 
     return data;
 }
