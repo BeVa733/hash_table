@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+// #include <string.h>
 #include <assert.h>
 
 #include "hash_table.h"
@@ -49,7 +49,7 @@ bool is_in_list(spisok_t* list, const char* word, int* find_index = NULL)
         if (*(list->data[curr_index]) == *word)
         {
 
-            if (strcmp(list->data[curr_index], word) == 0)
+            if (strcmp_32(list->data[curr_index], word) == 0)
             {
                 if (find_index)
                     *find_index = curr_index;

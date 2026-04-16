@@ -1,11 +1,21 @@
 import re
 import sys
 
-with open(sys.argv[1], "r", encoding="utf-8") as f:
-    text = f.read().lower()
+WORD_SIZE = 32
+MAX_WORD_LEN = WORD_SIZE - 1
+
+with open(sys.argv[1], "r", encoding="utf-8") as file:
+    text = file.read().lower()
 
 text = re.sub(r"[^a-z']+", " ", text)
-text = re.sub(r"\s+", " ", text).strip()
+words = re.sub(r"\s+", " ", text).strip().split()
 
-with open(sys.argv[2], "w", encoding="utf-8") as f:
-    f.write(text + "\n")
+with open(sys.argv[2], "wb") as file:
+    for word in words:
+        data = word.encode("ascii")
+
+        if len(data) > MAX_WORD_LEN:
+            raise ValueError(f"word is too long for 32-byte format: {word}")
+
+        file.write(data)
+        file.write(b"\0" * (WORD_SIZE - len(data)))

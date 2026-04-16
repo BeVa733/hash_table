@@ -14,7 +14,6 @@ struct table_t
     uint64_t magic_const;
 };
 
-extern "C" const char* find_in_table(const table_t* table, const char* word);
 
 // table API
 int         table_ctor       (table_t* table, uint32_t size, hash_function func);
@@ -23,12 +22,16 @@ bool        is_in_list       (spisok_t* list, const char* word, int* find_index)
 char**      load_table       (table_t* table, const char* filename);
 bool        insert_in_table  (table_t* table, const char* word);
 bool        is_in_table      (const table_t* table, const char* word);
-// const char* find_in_table    (const table_t* table, const char* word);
 bool        erase_from_table (table_t* table, const char* word);
+
+extern "C" const char* find_in_table(const table_t* table, const char* word);
+
 
 // utils
 char** read_text  (const char* filename, long* num_lines);
 int get_table_index(const table_t* table, const char* word);
+
+extern "C" int         strcmp_32    (const char* lhs, const char* rhs);
 
 // statistics funcs
 int empty_bucket_count   (const table_t* table);

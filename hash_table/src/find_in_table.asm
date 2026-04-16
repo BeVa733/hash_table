@@ -2,8 +2,27 @@ default rel
 
 section .text
 global find_in_table
+global strcmp_32
 
-extern strcmp
+; int strcmp_32(const char* word1, const char* word2)
+; rdi = word1
+; rsi = word2
+
+strcmp_32:
+                vmovdqu ymm0, [rdi]
+                vpcmpeqb ymm1, ymm0, [rsi]
+                vpmovmskb eax, ymm1
+                cmp eax, 0FFFFFFFFh
+                jne .not_equal
+
+                vzeroupper
+                xor eax, eax
+                ret
+
+.not_equal:
+                vzeroupper
+                mov eax, 1
+                ret
 
 TABLE_SIZE      equ     0
 TABLE_LIST_ARR  equ     8
@@ -83,7 +102,7 @@ find_in_table:
 
                 ; full compare
                 mov     rsi, r14
-                call    strcmp wrt ..plt
+                call    strcmp_32
                 test    eax, eax
                 je      .found
 
